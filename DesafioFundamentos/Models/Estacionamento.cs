@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace DesafioFundamentos.Models
 {
     public class Estacionamento
@@ -7,6 +9,9 @@ namespace DesafioFundamentos.Models
         private List<string> veiculos = new List<string>();
 
         private string placa;
+
+        private const int CapacidadeMaxima = 50;
+        private int capacidadeAtual = 0;
 
         public Estacionamento(decimal precoInicial, decimal precoPorHora)
         {
@@ -18,9 +23,11 @@ namespace DesafioFundamentos.Models
         {
             Console.WriteLine("Digite a placa do veículo para estacionar:");
             placa = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(placa))
+
+            if(ValidarPlaca(placa) && (capacidadeAtual < CapacidadeMaxima))
             {
                 veiculos.Add(placa);
+                capacidadeAtual++;
             }
             else
             {
@@ -36,17 +43,10 @@ namespace DesafioFundamentos.Models
             string placa = "";
             placa = Console.ReadLine();
 
-            if (!string.IsNullOrWhiteSpace(placa))
+            if(ValidarPlaca(placa))
             {
-                veiculos.Add(placa);
-            }
-            else
-            {
-            Console.WriteLine("Você precisa informar uma placa");
-            }
-
-            if (veiculos.Any(x => x.ToUpper() == placa.ToUpper()))
-            {
+               if (veiculos.Any(x => x.ToUpper() == placa.ToUpper()))
+                {
                 Console.WriteLine("Digite a quantidade de horas que o veículo permaneceu estacionado:");
 
                 int horas = 0;
@@ -60,13 +60,21 @@ namespace DesafioFundamentos.Models
                 valorTotal = precoInicial + precoPorHora * horas;
 
                 veiculos.Remove(placa.ToUpper());
+                capacidadeAtual--;
 
                 Console.WriteLine($"O veículo {placa} foi removido e o preço total foi de: R$ {valorTotal}");
+                }
+                else
+                {
+                    Console.WriteLine("Desculpe, esse veículo não está estacionado aqui. Confira se digitou a placa corretamente");
+                } 
             }
             else
             {
-                Console.WriteLine("Desculpe, esse veículo não está estacionado aqui. Confira se digitou a placa corretamente");
+            Console.WriteLine("Você precisa informar uma placa");
             }
+
+            
         }
 
         public void ListarVeiculos()
@@ -79,11 +87,27 @@ namespace DesafioFundamentos.Models
                 {
                     Console.WriteLine($"Placa: {veiculo}");
                 }
+                MostrarCapacidadeAtual();
             }
             else
             {
                 Console.WriteLine("Não há veículos estacionados.");
             }
         }
+
+        private bool ValidarPlaca(string placa)
+        {
+            if (!string.IsNullOrWhiteSpace(placa))
+            {
+                string pattern = @"^[A-Za-z]{3}-\d{4}$";
+                return Regex.IsMatch(placa, pattern);
+            }
+            return false;  
+        }
+
+        public void MostrarCapacidadeAtual()
+    {
+        Console.WriteLine($"Capacidade atual do estacionamento: {capacidadeAtual}/{CapacidadeMaxima}");
+    }
     }
 }
